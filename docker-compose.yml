@@ -1,9 +1,0 @@
-version: '3.8'
-services:
-
-  bfm-telebot:
-    build: .
-    container_name: bfm-telebot
-    environment:
-      - uri="http://localhost:9090/"
-      - botToken=6204729808:AAGp9jPdvhA7ZFVwPyBqbJJ86Lesr07Jc2o
