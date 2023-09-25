@@ -42,21 +42,23 @@ const handleGetBalance = async (balanceRequest:string, ctx:any) => {
     const shouldGetAll = (balanceRequest.includes('all'));
     const shouldShowTransactions = (balanceRequest.includes('show'));
     balanceRequest = balanceRequest.replace('all', '').replace('show', '').replace(/\s\s+/g, ' ').trim();
-    const balanceRequestTokens:string[] = balanceRequest.split(' ');
 
-    const year = utils.parseYear(balanceRequestTokens[utils.BALANCE_REQUEST_TOKENS.YEAR], ctx);
+    const year = utils.parseYear(balanceRequest, ctx);
     if (-1 == year) {
         return;
     }
 
-    const month = utils.parseMonth(balanceRequestTokens[utils.BALANCE_REQUEST_TOKENS.MONTH], year, ctx);
+    const month = utils.parseMonth(balanceRequest, year, shouldGetAll, ctx);
     if (-1 == month) {
         return;
     }
-    
-    if (!(await getData(shouldGetAll, year, month, shouldShowTransactions, ctx))) {
+
+    if (0 == month) { // Month was not given but 'All' option was selected - show all since start recording
+        await getData(shouldGetAll, 0, 0, shouldShowTransactions, ctx);
         return;
     }
+    
+    await getData(shouldGetAll, year, month, shouldShowTransactions, ctx);
 
 }
 

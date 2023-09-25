@@ -10,14 +10,16 @@ export const getDayOfMonth = ():number => {
     return ((new Date()).getDate());
 }
 
-export enum BALANCE_REQUEST_TOKENS {
-    BALANCE = 0,
+enum TOKEN_INDEXES {
+    DAY, BALANCE = 0,
     MONTH = 1,
     YEAR = 2,
 };
 
-export const parseYear = (yearToken:string, ctx:any):number => {
+export const parseYear = (balanceRequest:string, ctx:any):number => {
     let year:number = getYear();
+    const balanceRequestTokens:string[] = balanceRequest.split(' ');
+    const yearToken = balanceRequestTokens[TOKEN_INDEXES.YEAR]
 
     if (undefined != yearToken) { // month is included in command
         let yearInRequest:number = parseInt(yearToken);
@@ -44,8 +46,11 @@ export const parseYear = (yearToken:string, ctx:any):number => {
     return year;
 }
 
-export const parseMonth = (monthToken:string, year:number, ctx:any):number => {
+export const parseMonth = (balanceRequest:string, year:number, shouldGetAll:boolean, ctx:any):number => {
     let month = getMonth();
+    const balanceRequestTokens:string[] = balanceRequest.split(' ');
+    const monthToken = balanceRequestTokens[TOKEN_INDEXES.MONTH]
+
     if (undefined != monthToken) { // month is included in command
         const monthInRequest = parseInt(monthToken);
         if (isNaN(monthInRequest) || monthInRequest > 12 || monthInRequest < 1) {
@@ -57,6 +62,9 @@ export const parseMonth = (monthToken:string, year:number, ctx:any):number => {
             return -1;
         }
         month = monthInRequest;
+    }
+    else if (shouldGetAll) {
+        month = 0;
     }
     return month;
 }
@@ -77,7 +85,7 @@ export const parseDate = (str:string, ctx:any): Date => {
             year = getYear();
         }
     } else {
-        year = parseInt(tokens[2]);
+        year = parseInt(tokens[TOKEN_INDEXES.YEAR]);
     }
 
     if (isNaN(year)) {
@@ -99,7 +107,7 @@ export const parseDate = (str:string, ctx:any): Date => {
         return new Date(0,0,0);
     }
 
-    const month = parseInt(tokens[1]);
+    const month = parseInt(tokens[TOKEN_INDEXES.MONTH]);
     if (isNaN(month)) {
         ctx.reply("Invalid month");
         return new Date(0,0,0);
@@ -114,7 +122,7 @@ export const parseDate = (str:string, ctx:any): Date => {
     }
 
     const monthsLengths = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
-    const day = parseInt(tokens[0]);
+    const day = parseInt(tokens[TOKEN_INDEXES.DAY]);
     if (isNaN(day)) {
         ctx.reply("Invalid day");
         return new Date(0,0,0);
