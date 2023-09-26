@@ -5,18 +5,42 @@ import * as utils from "./framework/utilities";
 
 const helpInformation:string = (fs.readFileSync('./src/resources/helpInformation.txt', 'utf-8'));
 
+const isAuthorized = (ctx:any):boolean => {
+    const authorizedIds:string = (fs.readFileSync('./src/resources/authorizedNumbers.txt', 'utf-8'));
+    if (!(authorizedIds.includes(ctx.from['id']))) {
+        ctx.reply("You are not authorized. You can request access by entering /requestAccess")
+        return false;
+    }
+    return true;
+}
+
+
 export const setUpBot = (bot:any) => {
     gracefulShutdown(bot);
+
+    bot.command("requestAccess", (ctx:any) => {
+        // const ctxAdmin = JSON.parse((fs.readFileSync('./src/resources/adminInformation.txt', 'utf-8')));
+        // ctx.reply(ctx.from['first_name'] + ' ' + ctx.from['last_name'] + ' is requesting access.');
+        ctx.reply("Sorry! Feature not implemented yet, talk to Maor");
+    })
 
     bot.start((ctx:any) => {
         ctx.reply('שלום יעל! אנחנו בצוות בן נח, מאחלים לך המון הצלחה עם העסק המתפתח!');
     });
     bot.help((ctx:any) => {
+        if (!isAuthorized(ctx)) {
+            return;
+        }
         const format:string = helpInformation;
         ctx.reply(helpInformation);
     });
 
     bot.on('text', (ctx:any) => {
+        if (!isAuthorized(ctx)) {
+            return;
+        }
+
+        console.log(ctx.from);
         const text = ctx.message.text;
         
         if (text.toLowerCase().includes('balance')) {
